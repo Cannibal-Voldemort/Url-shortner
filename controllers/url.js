@@ -10,22 +10,20 @@ async function handleGenerateNewShortUrl(req, res) {
     shortId: shortID,
     redirectURL: body.url,
     visitHistory: [],
-  })
-  return res.json({id: shortID})
+  });
+  return res.json({ id: shortID });
 }
-  
-async function handleGetAnalytics(req, res){
-  const shortId = req.params.id
-  const result = await URL.findOne({shortId})
+
+async function handleGetAnalytics(req, res) {
+  const shortId = req.params.shortId;
+  const result = await URL.findOne({ shortId });
   return res.json({
-    totalclicks: result.visitHistory.length,
+    totalClicks: result.visitHistory.length,
     analytics: result.visitHistory,
-  })
+  });
 }
-
-
 
 module.exports = {
-    handleGenerateNewShortUrl,
-    handleGetAnalytics,
-}
+  handleGenerateNewShortUrl,
+  handleGetAnalytics,
+};

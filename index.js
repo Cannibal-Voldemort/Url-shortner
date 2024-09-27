@@ -1,8 +1,10 @@
 const express = require("express");
-const { connectMongoDB } = require("./connection");
-const urlRoute = require("./routes/url");
 const path = require("path");
+const { connectMongoDB } = require("./connection");
+
+const urlRoute = require("./routes/url");
 const staticRoute = require("./routes/staticRouter");
+const userRoute = require("./routes/user")
 
 const URL = require("./models/url");
 
@@ -21,6 +23,7 @@ app.use(express.json()); // used to parse body
 
 
 app.use("/url", urlRoute);
+app.use("/user", userRoute)
 app.use("/", staticRoute);
 
 app.get("/url/:shortId", async (req, res) => {

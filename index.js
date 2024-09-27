@@ -1,8 +1,10 @@
 const express = require("express");
 const { connectMongoDB } = require("./connection");
 const urlRoute = require("./routes/url");
+const path = require("path");
+const staticRoute = require("./routes/staticRouter");
 
-const URL = require('./models/url')
+const URL = require("./models/url");
 
 connectMongoDB("mongodb://localhost:27017/short-url").then(() => {
   console.log("MongoDb connected");
@@ -11,24 +13,32 @@ connectMongoDB("mongodb://localhost:27017/short-url").then(() => {
 const app = express();
 const PORT = 8002;
 
-app.use(express.json()); // used to parse body
-app.use("/url", urlRoute);
+app.set("view engine", "ejs");
+app.set("views", path.resolve("./views"));
 
-app.get('/:shortId', async (req, res) => {
-    const shortId = req.params.shortId
-    const entry = await URL.findOneAndUpdate(
-        {
-            shortId
-        },{
-           $push:{
-            visitHistory:{
-                timestamp: Date.now()
-            }
-           }
-        }
-    )
-    res.redirect(entry.redirectURL)
-})
+app.use(express.urlencoded({ extended: "false" }));
+app.use(express.json()); // used to parse body
+
+
+app.use("/url", urlRoute);
+app.use("/", staticRoute);
+
+app.get("/url/:shortId", async (req, res) => {
+  const shortId = req.params.shortId;
+  const entry = await URL.findOneAndUpdate(
+    {
+      shortId,
+    },
+    {
+      $push: {
+        visitHistory: {
+          timestamp: Date.now(),
+        },
+      },
+    }
+  );
+  res.redirect(entry.redirectURL);
+});
 
 // used try and catch to catch the error its better to use try & catch but it feels messy for me
 
@@ -57,7 +67,6 @@ app.get('/:shortId', async (req, res) => {
 //         res.status(500).send('Internal Server Error');
 //     }
 // });
-
 
 app.listen(PORT, () => {
   console.log(`Server started at PORT:${PORT}`);
